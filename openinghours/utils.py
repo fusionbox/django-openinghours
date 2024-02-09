@@ -6,6 +6,7 @@ except ImportError:
 from openinghours.models import OpeningHours, ClosingRules, PREMISES_MODEL
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
 
 
 def get_premises_model():
@@ -34,13 +35,13 @@ def get_now():
     Allows to access global request and read a timestamp from query.
     """
     if not get_current_request:
-        return datetime.datetime.now()
+        return timezone.now()
     request = get_current_request()
     if request:
         openinghours_now = request.GET.get('openinghours-now')
         if openinghours_now:
             return datetime.datetime.strptime(openinghours_now, '%Y%m%d%H%M%S')
-    return datetime.datetime.now()
+    return timezone.now()
 
 
 def get_closing_rule_for_now(location):
