@@ -7,6 +7,9 @@ from openinghours.models import OpeningHours, ClosingRules, PREMISES_MODEL
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
+from django.conf import settings
+from zoneinfo import ZoneInfo
+
 
 
 def get_premises_model():
@@ -40,7 +43,10 @@ def get_now():
     if request:
         openinghours_now = request.GET.get('openinghours-now')
         if openinghours_now:
-            return datetime.datetime.strptime(openinghours_now, '%Y%m%d%H%M%S')
+            dt = datetime.datetime.strptime(openinghours_now, '%Y%m%d%H%M%S')
+            if getattr(settings, 'TIME_ZONE'):
+                dt = dt.replace(tzinfo=ZoneInfo(settings.TIME_ZONE))
+            return dt
     return timezone.now()
 
 
