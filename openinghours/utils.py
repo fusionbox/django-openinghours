@@ -52,7 +52,8 @@ def get_now():
                 dt = dt.replace(tzinfo=ZoneInfo('UTC'))
     if dt is None:
         dt = timezone.now()
-    dt = dt.astimezone(tz)
+    if tz:
+        dt = dt.astimezone(ZoneInfo(tz))
     return dt
     
 
