@@ -37,18 +37,24 @@ def get_now():
     """
     Allows to access global request and read a timestamp from query.
     """
+    tz = getattr(settings, 'TIME_ZONE', None)
+    dt = None
     if not get_current_request:
-        return timezone.now()
-    request = get_current_request()
-    if request:
+        dt = timezone.now()
+    elif get_current_request():
+        request = get_current_request()
         openinghours_now = request.GET.get('openinghours-now')
         if openinghours_now:
             dt = datetime.datetime.strptime(openinghours_now, '%Y%m%d%H%M%S')
-            if getattr(settings, 'TIME_ZONE'):
-                dt = dt.replace(tzinfo=ZoneInfo(settings.TIME_ZONE))
-            return dt
-    return timezone.now()
-
+            if tz:
+                dt = dt.replace(tzinfo=ZoneInfo(tz))
+            else:
+                dt = dt.replace(tzinfo=ZoneInfo('UTC'))
+    if dt is None:
+        dt = timezone.now()
+    dt = dt.astimezone(tz)
+    return dt
+    
 
 def get_closing_rule_for_now(location):
     """
